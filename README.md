@@ -158,3 +158,118 @@ vue的核心是一个允许采用简洁的模板语法来声明式的将数据�
 ```
 在上面的例子中，我们已经设法将应用分割成了两个更小的单元，子单元通过 props 接口实现了与父单元很好的解耦。
 # To be continued......
+
+# 模板语法
+## 插值
+### 文本
+最常用的文本插值方法是使用"Mustache"语法
+```html
+<p>Message:{{msg}}</p>
+```
+Mustache 标签将会被替代为对应数据对象上 msg 属性的值。无论何时，绑定的数据对象上 msg 属性发生了改变，插值处的内容都会更新。
+
+通过使用 v-once 指令，可以执行一次性的插值，当数据改变时，插值处的内容便不会再更新
+
+```html
+<p v-once>这个数据将不会改变{{msg}}</p>
+```
+### 纯HTMl
+{{}}会将数据解释为纯文本，为了能够输出HTML，可以使用 v-html 指令
+```html
+<div class="exp" v-html="rewHtml">{{msg}}</div>
+<script>
+    var exp=new Vue({
+        el:".exp",
+        data:{
+            msg:"big world",
+            rewHtml:"<p>hello world</p>"
+        }
+    })
+</script>
+```
+属性 rewHtml 会将这个 div 内的内容替换，也就是说原来绑定的 msg 属性被忽略，rewHtml 将作为 HTML 被直接添加
+```
+hello world
+```
+### 特性
+Mustache 语法不能用在设置 HTML 特性上，这时候就可以使用 v-bind 指令：
+```html
+<div class="exp" v-bind:title="tit">哈哈哈哈</div>
+<script>
+    var exp=new Vue({
+        el:".exp",
+        data:{
+            tit:"2333"
+        }
+    })
+</script>
+```
+布尔类特性可以这样设置，值为 false ，则该特性就会被删除
+```html
+<button class="exp" v-bind:disabled="tit">按钮</button>
+<script>
+    var exp=new Vue({
+        el:".exp",
+        data:{
+            tit:true
+        }
+    })
+</script>
+```
+如上，当我们把 tit的值改为 false 时，则 button 中的 disabled 会被删除，按钮也就可以点击了
+
+### javascript 表达式
+
+Vue 也提供了对js表达式的支持
+```html
+<div class="exp">{{{{ message.split('').reverse().join('') }}}}</div>
+<script>
+    var exp=new Vue({
+        el:".exp",
+        data:{
+            message:"abcdefg"
+        }
+    })
+</script>
+```
+```
+gfedcba
+```
+这些表达式会在所属 Vue 实例的数据作用域下作为 JavaScript 被解析。有个限制就是，每个绑定都只能包含单个表达式，所以下面的例子都不会生效。
+```html
+<!-- 这是语句，不是表达式 -->
+{{ var a = 1 }}
+<!-- 流控制也不会生效，请使用三元表达式 -->
+{{ if (ok) { return message } }}
+```
+...................................................................
+> 过滤器
+```js
+filters:{
+
+}
+```
+> 计算
+```js
+conputed:{
+
+}
+```
+> 观察
+```js
+watch:{
+
+}
+```
+> 钩子函数
+```js
+created function(){
+
+}
+mountde function(){
+
+}
+updated function(){
+
+}
+```
