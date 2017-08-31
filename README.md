@@ -503,4 +503,7 @@ mountde function(){
 updated function(){
 
 }
+destoryed function(){
+    
+}
 ```
