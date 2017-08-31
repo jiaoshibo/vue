@@ -507,6 +507,7 @@ destoryed function(){
 
 }
 ```
+
 # Class 与 Style 绑定
 ## 绑定 HTML Class 
 ### 对象语法
@@ -608,4 +609,497 @@ Vue.component("my", {
 当active为true时，HTML 将被渲染成为：
 ```html
 <p class="foo bar active">Hi</p>
+```
+## 绑定内联样式
+### 对象语法
+v-bind:style 的对象语法十分直观——看着非常像 CSS，其实它是一个 JavaScript 对象。 CSS 属性名可以用驼峰式 (camelCase) 或 (配合引号的) 短横分隔命名 (kebab-case)：
+```html
+<div v-bind:style="{ color: activeColor, fontSize: fontSize + 'px' }"></div>
+<script>
+    data:{
+        activeColor:"blue",
+        fontSize:20
+    }
+</script>
+```
+使用对象语法的话，会看起来更加清晰
+```html
+<div v-bind:style="obj"></div>
+<script>
+    data:{
+        obj:{
+            color:"#FFF",
+            fontSize:"20px"
+        }
+    }
+</script>
+```
+### 数组语法
+v-bind:style 的数组语法可以将多个样式对象应用到一个元素上：
+```html
+<div v-bind:style="[style1,style2]"></div>
+<script>
+    data:{
+        style1:{
+            color:"#666"
+        },
+        style2:{
+            background:"#b1b1b1"
+        }
+    }
+</script>
+```
+### 自动添加前缀
+当 v-bind:style 使用需要特定前缀的 CSS 属性时，如 transform，Vue.js 会自动侦测并添加相应的前缀。
+
+```
+Chrome 和 Safari : -webkit-
+IE :               -ms-
+Firfox :           -moz-
+Opera :            -o-
+```
+# 条件渲染
+## v-if
+### 在 < template > 中配合 v-if 渲染一整组
+在使用 v-if 控制元素的时候，我们需要将它添加到这个元素上去。然而如果要切换很多元素的时候，一个个的添加就太麻烦了。这时候就可以使用 < template > 将一组元素进行包裹，并在上面使用 v-if。最终的渲染结果不会包含 < template > 元素。
+```html
+<template v-if="ok">
+  <h1>Title</h1>
+  <p>Paragraph 1</p>
+  <p>Paragraph 2</p>
+</template>
+
+<script>
+    data:{
+        ok:true
+    }
+</script>
+```
+我们更改 ok 的值，就可以控制整组的元素了
+### v-else
+你可以使用 v-else 指令来表示 v-if 的“else 块”：
+```html
+<div v-if="ok">
+    Now you see me
+</div>
+<div v-else>
+    Now you don't
+</div>
+```
+v-else 元素必须紧跟在 v-if 或者 v-else-if 元素的后面——否则它将不会被识别。
+### v-else-if
+v-else-if，顾名思义，充当 v-if 的“else-if 块”。可以链式地使用多次：
+```html
+<div>
+    <p v-if="sc>=90">优秀</p>
+    <p v-else-if="sc>=60">及格</p>
+    <p v-else="sc<60">不及格</p>
+</div>
+```
+类似于 v-else，v-else-if 必须紧跟在 v-if 或者 v-else-if 元素之后。
+### 可复用元素
+Vue 会尽可能高效地渲染元素，通常会复用已有元素而不是从头开始渲染。这么做，除了使 Vue 变得非常快之外，还有一些有用的好处。例如，如果你允许用户在不同的登录方式之间切换:
+```html
+<div class="exp">
+    <template v-if="loginType === 'username'">
+        <label>Username</label>
+        <input placeholder="Enter your username">
+    </template>
+
+    <template v-else>
+        <label>Email</label>
+        <input placeholder="Enter your email address">
+    </template>
+    <input type="button" @click="btn" value="切换"/>
+</div>
+
+<script>
+    var exp=new Vue({
+        el:".exp",
+        data:{
+            loginType:"username"
+        },
+        methods:{
+            btn:function(){
+                if(this.loginType==="username"){
+                    this.loginType="email"
+                }else{
+                    this.loginType="username"
+                }
+            }
+        }
+    })
+</script>
+```
+那么在上面的代码中切换 loginType 将不会清除用户已经输入的内容。因为两个模板使用了相同的元素，< input > 不会被替换掉——仅仅是替换了它的 placeholder。
+
+复制上面的代码，在自己的浏览器中试一试。
+
+有时候我们不希望浏览器保留我们输入的内容，所以 Vue 为你提供了一种方式来声明“这两个元素是完全独立的——不要复用它们”。只需添加一个具有唯一值的 key 属性即可：
+```html
+<template v-if="loginType === 'username'">
+    <label>Username</label>
+    <input placeholder="Enter your username" key="username">
+</template>
+
+<template v-else>
+    <label>Email</label>
+    <input placeholder="Enter your email address" key="email">
+</template>
+```
+## v-show
+
+另一个用于根据条件展示元素的选项是 v-show 指令。用法大致一样：
+```html
+<h1 v-show="ok">Hello!</h1>
+<script>
+    data:{
+        ok:false
+    }
+</script>
+```
+不同的是带有 v-show 的元素始终会被渲染并保留在 DOM 中。v-show 是简单地切换元素的 CSS 属性 display 。
+
+渲染如下
+```html
+<div style="display:none;"></div>
+```
+# 列表渲染
+## 使用 v-for 把一个数组对应为一组元素
+我们用 v-for 指令根据一组数组的选项列表进行渲染。 v-for 指令需要以 item in items 形式的特殊语法， items 是源数据数组并且 item 是数组元素迭代的别名。
+```html
+<div class="exp">
+    <ul>
+        <li v-for="item in items">{{item.text}}</li>
+    </ul>
+</div>
+
+<script>
+    data:{
+        items:[
+            {text:"eat"},
+            {text:"play"},
+            {text:"game"}
+        ]
+    }
+</script>
+```
+渲染结果
+```html
+<div class="exp">
+    <ul>
+        <li>eat</li>
+        <li>play</li>
+        <li>game</li>
+    </ul>
+</div>
+```
+v-for 还支持一个可选的第二个参数为当前项的索引。
+```html
+<div class="exp">
+    <ul>
+        <li v-for="item,index in items">{{index}}-{{item.text}}</li>
+    </ul>
+</div>
+<script>
+    var exp=new Vue({
+        el:".exp",
+        data:{
+            items:[
+                {text:'eat'},
+                {text:'paly'},
+                {text:'game'}
+            ]    
+        }
+    })
+</script>
+```
+结果
+```
+0-eat
+1-paly
+2-game
+```
+### 一个对象的 v-for
+你也可以用 v-for 通过一个对象的属性来迭代。
+```html
+<div class="exp">
+    <ul>
+        <li v-for="value in obj">{{value}}</li>
+    </ul>
+</div>
+<script>
+    var exp=new Vue({
+        el:".exp",
+        data:{
+            obj:{
+                firstname:"PureView",
+                lastname:"一个安静的美男子",
+                age:18
+            }
+        }
+    })
+</script>
+```
+结果
+```
+PureView
+一个安静的美男子
+18
+```
+你一共可以提供三个参数，第二个参数为键名，第三个为索引：
+```html
+<li v-for="value,key,index in obj">{{index+1}}. {{key}}: {{value}}</li>
+```
+结果
+```
+1. firstname: PureView
+2. lastname: 一个安静的美男子
+3. age: 18
+```
+## 数组更新检测
+### 变异方法
+Vue 包含一组观察数组的变异方法，所以它们也将会触发视图更新。这些方法如下：
+* push()
+* pop()
+* shift()
+* unshift()
+* splice()
+* sort()
+* reverse()
+
+例如
+```html
+<div class="exp">
+    <ul>
+        <li v-for="item in items">{{item.text}}</li>
+    </ul>
+</div>
+
+<script>
+    var exp=new Vue({
+        el:".exp",
+        data:{
+            items:[
+                {text:"eat"},
+                {text:"play"},
+                {text:"game"}
+            ]
+    }
+    })
+    exp.items.push({text:'watch TV'})
+</script>
+```
+### 重塑数组
+变异方法(mutation method)，顾名思义，会改变被这些方法调用的原始数组。相比之下，也有非变异(non-mutating method)方法，例如： filter(), concat() 和 slice() 。这些不会改变原始数组，但总是返回一个新数组。当使用非变异方法时，可以用新数组替换旧数组：
+```js
+data:{
+    items:[
+            {text:"eat"},
+            {text:"play"},
+            {text:"game"},
+            {text:"gaming"},
+            {text:"wot"},
+            {text:"wows"},
+            {text:"wt"}
+        ]
+    }
+}
+exp.items.slice(0,5)
+```
+利用上一节的例子,返回的值不会改变原数据，在控制台打印我们就能看到了。
+### 注意事项
+由于 JavaScript 的限制， Vue 不能检测以下变动的数组：
+
+* 当你利用索引直接设置一个项时，例如： vm.items[indexOfItem] = newValue
+* 当你修改数组的长度时，例如： vm.items.length = newLength
+
+为了解决第一类问题，以下两种方式都可以实现和 vm.items[indexOfItem] = newValue 相同的效果， 同时也将触发状态更新：
+```js
+// Vue.set
+Vue.set(exp.items, indexOfItem, newValue)
+```
+
+```js
+// Array.prototype.splice
+exp.items.splice(indexOfItem, 1, newValue)
+```
+为了解决第二类问题，你可以使用 splice：
+
+```js
+exp.items.splice(newLength)
+```
+
+## 对象更新检测
+由于现代JavaScript的限制，Vue无法检测属性添加或删除。 例如：
+```js
+var exp=new Vue({
+    data:{
+        a:1
+    }
+})
+vm.b=2 //模板内无响应
+```
+
+Vue是不允许动态地向已创建的实例添加新的根级属性的。这时候 Vue 提供了一个方法用来对对象添加属性：
+```js
+Vue.set(object,key,value)
+```
+举个例子
+```js
+var exp=new Vue({
+    el:".exp",
+    data:{
+        obj:{
+            me:"pureview",
+            pet1:"dog",
+            pet2:"cat",
+            hobby:"games"
+        }  
+    }
+})
+```
+我们在控制台输入下面的代码，就可以看到模板内的数据进行了更新
+```js
+Vue.set(exp.obj,"todo","eating")
+```
+除了添加属性，我们也可以进行删除操作
+```js
+Vue.delete(exp.obj,"pet2")
+```
+## 显示过滤/排序结果
+有时，我们想要显示一个数组的过滤或排序副本，而不实际改变或重置原始数据。在这种情况下，可以创建返回过滤或排序数组的计算属性。
+
+比如我们在一个数组中取其偶数
+```html
+<div class="exp">
+    <ul>
+        <li v-for="n in numbers">{{n}}</li>
+    </ul>
+</div>
+
+<script>
+    var exp=new Vue({
+        el:".exp",
+        data:{
+            num:[1,2,3,4,5,6,7,8,9,10]
+        },
+        computed:{
+            numbers:function(){
+                return this.num.filter(function(num){
+                    return num%2===0
+                })
+            }
+        }
+    })
+</script>
+```
+模板显示结果：
+
+```
+2
+4
+6
+8
+10
+```
+在计算属性不适用的情况下 (例如，在嵌套 v-for 循环中) 你可以使用一个 method 方法：
+```html
+<div class="exp">
+    <ul>
+        <li v-for="n in even(num)">{{n}}</li>
+    </ul>
+</div>
+
+<script>
+    var exp=new Vue({
+        el:".exp",
+        data:{
+            num:[1,2,3,4,5,6,7,8,9,10]
+        },
+        methods:{
+            even:function(num){
+                return num.filter(function(num){
+                    return num%2===0
+                })
+            }
+        }
+    })
+</script>
+```
+结果是一样的
+### 一段取值范围的 v-for
+v-for 也可以取整数。在这种情况下，它将重复多次模板。
+```html
+<div>
+  <span v-for="n in 10">{{ n }} </span>
+</div>
+```
+结果
+```
+1 2 3 4 5 6 7 8 9 10
+```
+## v-for 在 < template > 上
+与模板v-if类似，您还可以使用带有 v-for 的< template >标签来呈现多个元素的块。
+```html
+<ul>
+  <template v-for="item in items">
+    <li>{{ item.msg }}</li>
+    <li class="divider"></li>
+  </template>
+</ul>
+```
+###  v-for 和 v-if 
+
+当 v-for 与 v-if 一起使用时，v-for 具有比 v-if 更高的优先级，这意味着 v-if 将分别重复运行于每个 v-for 循环中。当我们仅为某些项目渲染节点时，这可能很有用：
+```html
+<li v-for="todo in todos" v-if="!todo.isComplete">
+  {{ todo }}
+</li>
+```
+而如果我们的目的是有条件地跳过循环的执行，那么可以将 v-if 置于外层元素 (或 < template >)上。如:
+```html
+<ul v-if="todos.length">
+  <li v-for="todo in todos">
+    {{ todo }}
+  </li>
+</ul>
+<p v-else>No todos left!</p>
+```
+### 组件的 v-for
+在 Vue 的 2.2.0 以上的版本中，我们要在组件中使用 v-for 时，不许使用 key
+```html
+<my-component v-for="(item,index) in itmes" v-bind:key="index"></my-component>
+```
+虽然在自定义组件里可以使用 v-for ，但是，他不能自动传递数据到组件里，因为组件有自己独立的作用域。为了传递迭代数据到组件里，我们要用 props ：
+```html
+<my-component v-for="(item,index) in items" v-bind:key="index" :lie="item.text"l></my-component>
+
+<script>
+    Vue.component('mycom', {
+        template: "<p>{{this.lie}}</p>",
+        props:["lie"]
+    })
+    var exp=new Vue({
+        el:".exp",
+        data:{
+            items:[
+                {text:'从前有座山'},
+                {text:'山上有座庙'},
+                {text:'庙里有个老和尚'},
+                {text:'正在玩王者荣耀'}
+            ]
+        }
+    })
+</script>
+```
+结果
+```
+从前有座山
+
+山上有座庙
+
+庙里有个老和尚
+
+正在玩王者荣耀
 ```
