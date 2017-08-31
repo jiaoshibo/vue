@@ -504,6 +504,108 @@ updated function(){
 
 }
 destoryed function(){
-    
+
 }
+```
+# Class 与 Style 绑定
+## 绑定 HTML Class 
+### 对象语法
+我们可以传给 v-bind:class 一个对象，以动态地切换 class：
+```html
+<style>
+    .exp{
+        border: 1px solid #ccc;
+    }
+    .forExp{
+        background: blue;
+    }
+</style>
+<div class="exp" v-bind:class="{newExp:isNewExp}"></div>
+<script>
+    var exp=new Vue({
+        el:".exp".
+        data:{
+            isForExp:false
+        }
+    })
+</script>
+```
+如上，我们先给 .exp 一个边框，我们利用 v-bind 方法传入一个新的 class 属性 .newExp，设置一个蓝色的背景颜色。当我们在控制台修改 .newExp 的属性为 true 时，会给 div 添加一个蓝色的背景颜色。
+
+我们也可以传入更多的属性来切换多个 class 。
+```html
+<div class="exp" v-bind:class="{newExp:isExp,npc:isNpc}"></div>
+<script>
+    data:{
+        isExp:false,
+        isNpc:true
+    }
+</script>
+```
+在模板里的渲染结果为：
+```html
+<div class="exp isNpc"></div>
+```
+我们也可以使用对象的方法来切换属性
+```html
+<div class="exp" v-bind:class="obj"></div>
+<script>
+    data:{
+        obj:{
+            newExp:false,
+            npc:true
+        }
+    }
+</script>
+```
+渲染结果和上面的一样
+### 数组语法
+我们可以把一个数组传给 v-bind:class，以应用一个 class 列表：
+```html
+<div class="exp" v-bind:class="[newExp,oldExp]"></div>
+<script>
+    data:{
+        newExp:"new",
+        oldExp:"old"
+    }
+</script>
+```
+渲染为：
+```html
+<div class="exp new old"></div>
+```
+要切换class，使用三元运算符：
+```html
+<div class="exp" v-bind:class="[act? newExp:oldExp]"></div>
+<script>
+    data{
+        newExp:"new",
+        oldExp:"old",
+        act:true
+    }
+<script>
+```
+act 为 true 时，添加 new ，为 false 时添加 old。
+### 用在组件上
+声明一个组件：
+```js
+Vue.component("my", {
+    template: '<p class="foo bar">Hi</p>'
+})
+```
+然后在使用它的时候添加一些 class：
+```html
+<my class="tip"></my>
+```
+最终渲染为
+```html
+<p class="foo bar tip">Hi</p>
+```
+同样的适用于绑定 HTML class:
+```html
+<my v-bind:class="{ active: isActive }"></my>
+```
+当active为true时，HTML 将被渲染成为：
+```html
+<p class="foo bar active">Hi</p>
 ```
