@@ -137,7 +137,7 @@ vue的核心是一个允许采用简洁的模板语法来声明式的将数据�
 <script>
     Vue.component("todo-item",{
         props:["todo"],
-        temlpate:"<li>{{todo.text}}</li>"
+        template:"<li>{{todo.text}}</li>"
     })
     var app7=new Vue({
         el:"#app-7",
@@ -1067,7 +1067,7 @@ v-for 也可以取整数。在这种情况下，它将重复多次模板。
 <p v-else>No todos left!</p>
 ```
 ### 组件的 v-for
-在 Vue 的 2.2.0 以上的版本中，我们要在组件中使用 v-for 时，不许使用 key
+在 Vue 的 2.2.0 以上的版本中，我们要在组件中使用 v-for 时，必须使用 key
 ```html
 <my-component v-for="(item,index) in itmes" v-bind:key="index"></my-component>
 ```
