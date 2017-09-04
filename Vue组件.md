@@ -306,3 +306,54 @@ ue.component('child', {
     });
 </script>
 ```
+## 使用 Slot 分发内容
+这部分官方文档说的有点啰嗦，我这边就合到一块说吧。直接上个例子：
+```html
+    <style>
+        .box{
+            margin: 10px;
+            width: 150px;
+            border: 1px solid #ccc;
+        }
+        .box-header, .box-footer{
+            height: 30px;
+            background: sandybrown;
+        }
+        .box-body{
+            min-height: 100px;
+        }
+    </style>
+<body>
+    <div class="exp">
+        <box>
+            <h2 slot="title">Slot内容分发<h2>
+            <p>为了让组件可以组合，我们需要一种方式来混合父组件的内容与子组件自己的模板。这个过程被称为 内容分发 (或 “transclusion” 如果你熟悉 Angular)。Vue.js 实现了一个内容分发 API，参照了当前 Web 组件规范草案，使用特殊的 <slot> 元素作为原始内容的插槽。</p>
+            <p slot="foot">分发完成</p>
+        </box>
+    </div>
+
+    <script type="text/x-template" id="tmp">
+        <div class="box">
+            <div class="box-header"><slot name="title"></slot></div>
+            <div class="box-body">
+                <slot></slot>
+            </div>
+            <div class="box-footer"><slot name="foot"></slot>
+            </div>
+        </div>
+    </script>
+    <script>
+        var box={
+            template:"#tmp",
+        }
+
+        new Vue({
+            el:'.exp',
+            components:{
+                "bilibili":box
+            }
+        })
+    </script>
+</body>
+```
+< slot >被成为插口，在组件中，我们需要使用 slot 插口预留一个位置，以方便分发内容。如上，在放置正文内容的地方，我们直接插入一对 slot 标签标记出正文内容的位置。对于页面标题和页脚等特殊的位置，我们就需要"具名Slot"，用一个特殊的属性 name 来配置如何分发内容。多个 slot 可以有不同的名字。具名 slot 将匹配内容片段中有对应 slot 特性的元素。
